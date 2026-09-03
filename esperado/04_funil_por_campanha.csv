@@ -1,0 +1,16 @@
+cliente,campanha,impressoes,cliques,leads,vendas,ctr_pct,clique_para_lead_pct,lead_para_venda_pct
+Advocacia Ramos,Black Friday 2,320633,11152,184,54,3.48,1.65,29.35
+Advocacia Ramos,Black Friday 3,315602,11280,193,49,3.57,1.71,25.39
+Advocacia Ramos,Black Friday 4,235089,8451,144,44,3.59,1.70,30.56
+Advocacia Ramos,Marca 1,250027,8558,143,52,3.42,1.67,36.36
+Clínica Odonto Sul,Captação — bairro 2,339794,12138,203,58,3.57,1.67,28.57
+Clínica Odonto Sul,Marca 1,262892,8918,148,52,3.39,1.66,35.14
+Escola Mundo Novo,Black Friday 1,272459,9374,0,0,3.44,0.00,
+Escola Mundo Novo,Institucional 3,388919,12784,0,0,3.29,0.00,
+Escola Mundo Novo,Promoção sazonal 2,338798,11557,206,58,3.41,1.78,28.16
+Marcenaria Bonfim,Institucional 2,297941,9860,179,50,3.31,1.82,27.93
+Marcenaria Bonfim,Marca 3,262698,8729,126,37,3.32,1.44,29.37
+Marcenaria Bonfim,Promoção sazonal 1,253512,8628,138,41,3.40,1.60,29.71
+Padaria do Zé,Black Friday 5,344174,11723,0,0,3.41,0.00,
+Padaria do Zé,Institucional 2,235507,7213,124,43,3.06,1.72,34.68
+Padaria do Zé,Marca 3,419478,13720,224,56,3.27,1.63,25.00
