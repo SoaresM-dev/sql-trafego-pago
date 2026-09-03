@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  consultas:
+    name: esquema, semente e 10 consultas (Postgres 16)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: trafego_pago
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: trafego_pago
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar o cliente do Postgres
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends postgresql-client
+
+      # O passo que dá sentido ao repositório: sobe o esquema num banco vazio,
+      # semeia e compara a saída das dez consultas com os arquivos de
+      # `esperado/`. Uma consulta que mudou de resultado sem que alguém tenha
+      # mudado de ideia reprova aqui — que é a única forma de um repositório de
+      # SQL ser verificável em vez de "confia em mim".
+      - name: Rodar e conferir as consultas
+        run: ./scripts/rodar.sh --conferir
+
+      - name: Bancada de índice
+        run: psql -v ON_ERROR_STOP=1 -f scripts/bancada_indice.sql
