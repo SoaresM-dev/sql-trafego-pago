@@ -5,6 +5,7 @@ me custa cada lead, e de onde ele veio?**
 
 [![CI](../../actions/workflows/ci.yml/badge.svg)](../../actions/workflows/ci.yml)
 [![PostgreSQL 16](https://img.shields.io/badge/postgres-16-336791)](https://www.postgresql.org/)
+[![MySQL 8.4](https://img.shields.io/badge/mysql-8.4-4479a1)](https://www.mysql.com/)
 [![Licença: MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-22d3ee)](LICENSE)
 
 Rodo tráfego pago para pequenos negócios. As perguntas deste repositório não
@@ -156,6 +157,37 @@ Vale registrar o que quase todo repositório de SQL erra: **o Postgres não cria
 índice para chave estrangeira automaticamente.** Só a chave primária ganha um.
 É a causa mais comum de `JOIN` lento, e é invisível até a tabela crescer.
 
+## As mesmas dez perguntas em MySQL 8
+
+`mysql/` traz o porte completo, e a CI roda os dois dialetos contra um servidor
+de verdade a cada push. O porte existe pelo documento que ele produziu:
+**[`docs/dialetos.md`](docs/dialetos.md)** — porque quase nada ali é "sintaxe
+diferente".
+
+Três das mudanças alterariam o número do relatório **sem dar erro nenhum**:
+
+| | Postgres | MySQL |
+|---|---|---|
+| `SELECT 7 / 2` | `3` (divisão inteira) | `3.5000` — precisa de `DIV` |
+| `DATE '2026-08-31' - DATE '2026-07-31'` | `31` (dias) | `100` — precisa de `DATEDIFF` |
+| dia da semana ISO | `EXTRACT(isodow)` | `WEEKDAY(x)+1`, **não** `DAYOFWEEK` |
+
+A terceira é a mais traiçoeira: `DAYOFWEEK` é o nome que a mão escreve sozinha,
+começa no domingo, e publicaria o relatório com os números certos embaixo dos
+rótulos errados.
+
+E uma que o MySQL não tem: **`PERCENTILE_CONT` não existe**. A consulta 08 usa
+mediana de propósito — uma venda que demorou seis meses puxa a média inteira —,
+então trocar por `AVG` seria o caminho fácil e destruiria o argumento. Ela foi
+reconstruída com funções de janela, ficando com o valor do meio ou com a média
+dos dois centrais, que é o que o percentil contínuo faz por definição.
+
+`esperado-mysql/` é separado de `esperado/` porque as duas saídas **não são
+iguais**, e isso é decisão: a collation do MySQL ordena texto acentuado noutra
+posição, e forçar identidade exigiria mutilar as consultas dos dois lados para
+esconder uma diferença real. O que a CI garante é que cada dialeto roda e é
+reprodutível.
+
 ## Estrutura
 
 ```
@@ -168,10 +200,15 @@ consultas/
 ├── 00_referencia.sql  a view `hoje` — nenhuma consulta usa CURRENT_DATE
 └── 01..10_*.sql       uma pergunta de negócio por arquivo
 
+mysql/                 o mesmo, portado para MySQL 8 (esquema, semente e as dez)
+
 esperado/              a saída correta de cada consulta, em CSV
-scripts/rodar.sh       aplica, roda e confere
+esperado-mysql/        idem, para o dialeto do MySQL — e não é igual, ver docs/dialetos.md
+scripts/rodar.sh       aplica, roda e confere (Postgres)
+scripts/rodar-mysql.sh idem, no MySQL
 scripts/bancada_indice.sql   EXPLAIN ANALYZE em 1 milhão de linhas
 docs/desempenho.md     a medição
+docs/dialetos.md       o que muda entre Postgres e MySQL, e o que muda em silêncio
 ```
 
 ## Licença
