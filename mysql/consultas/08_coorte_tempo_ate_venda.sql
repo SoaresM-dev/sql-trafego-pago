@@ -63,7 +63,10 @@ ordenado AS (
     WHERE venda_id IS NOT NULL
 ),
 mediana AS (
-    SELECT coorte, AVG(dias) AS dias_ate_fechar_mediana
+    -- `AVG` devolve DECIMAL de escala larga (18.0000). Uma casa basta e é
+    -- exata: a mediana de inteiros ou é inteira, ou termina em ,5 quando a
+    -- contagem é par. Arredondar mais que isso perderia informação real.
+    SELECT coorte, CAST(AVG(dias) AS DECIMAL(10,1)) AS dias_ate_fechar_mediana
     FROM ordenado
     -- As duas posições centrais. Quando `quantas` é ímpar as duas coincidem e
     -- a média é o próprio valor do meio.
