@@ -53,3 +53,46 @@ jobs:
 
       - name: Bancada de índice
         run: psql -v ON_ERROR_STOP=1 -f scripts/bancada_indice.sql
+
+  consultas_mysql:
+    name: esquema, semente e 10 consultas (MySQL 8.4)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports: ["3307:3306"]
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      MYSQL_HOST: 127.0.0.1
+      MYSQL_PORT: 3307
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar o cliente do MySQL
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends mysql-client
+
+      # Mesmas dez perguntas, outro dialeto. Ele tem um diretório de esperado
+      # próprio de propósito: a ordenação de texto do MySQL difere da collation
+      # do Postgres, e as duas sementes não produzem a mesma base — exigir
+      # saída idêntica obrigaria a mutilar as duas consultas para esconder uma
+      # diferença real. O que a CI garante aqui é que o porte roda e é
+      # reprodutível; `docs/dialetos.md` diz o que mudou e por quê.
+      - name: Gravar as saidas (bootstrap do esperado-mysql)
+        run: ./scripts/rodar-mysql.sh --gravar
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: esperado-mysql
+          path: esperado-mysql/
