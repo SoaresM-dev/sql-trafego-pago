@@ -23,8 +23,12 @@ cd "$(dirname "$0")/.."
 : "${MYSQL_USER:=root}"
 : "${MYSQL_PASSWORD:=root}"
 
+# A senha vai por MYSQL_PWD, não por `--password=` na linha de comando: o
+# próprio cliente avisa que a segunda forma é insegura, e o aviso está certo —
+# a linha de comando aparece para qualquer processo da máquina.
+export MYSQL_PWD="$MYSQL_PASSWORD"
 MYSQL=(mysql --host="$MYSQL_HOST" --port="$MYSQL_PORT" --user="$MYSQL_USER"
-       "--password=$MYSQL_PASSWORD" --batch --raw --default-character-set=utf8mb4)
+       --batch --raw --default-character-set=utf8mb4)
 
 # TAB -> vírgula, e o NULL do MySQL -> campo vazio, como o CSV do psql.
 para_csv() {
@@ -37,6 +41,10 @@ for linha in sys.stdin.read().splitlines():
 }
 
 modo="${1:-mostrar}"
+
+# `git` não versiona diretório vazio, então num clone limpo `esperado-mysql/`
+# pode não existir ainda — é exatamente o caso na primeira gravação.
+mkdir -p esperado-mysql
 
 echo "==> esquema, índices e semente (MySQL)"
 for arquivo in mysql/01_esquema.sql mysql/02_indices.sql mysql/03_semente.sql \
