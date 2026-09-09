@@ -89,10 +89,5 @@ jobs:
       # saída idêntica obrigaria a mutilar as duas consultas para esconder uma
       # diferença real. O que a CI garante aqui é que o porte roda e é
       # reprodutível; `docs/dialetos.md` diz o que mudou e por quê.
-      - name: Gravar as saidas (bootstrap do esperado-mysql)
-        run: ./scripts/rodar-mysql.sh --gravar
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: esperado-mysql
-          path: esperado-mysql/
+      - name: Rodar e conferir as consultas
+        run: ./scripts/rodar-mysql.sh --conferir
