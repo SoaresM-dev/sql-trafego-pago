@@ -3,6 +3,8 @@
 **Um modelo relacional para a pergunta que todo cliente de agência faz: quanto
 me custa cada lead, e de onde ele veio?**
 
+*In English: a relational model for the question every agency client asks — what does each lead cost, and where did it come from? Star schema, ten CI-verified queries, on PostgreSQL and MySQL.*
+
 [![CI](../../actions/workflows/ci.yml/badge.svg)](../../actions/workflows/ci.yml)
 [![PostgreSQL 16](https://img.shields.io/badge/postgres-16-336791)](https://www.postgresql.org/)
 [![MySQL 8.4](https://img.shields.io/badge/mysql-8.4-4479a1)](https://www.mysql.com/)
